@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inquiry Track · Lead Manager</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+        body { background: #f4f6fb; padding: 2rem 1.5rem; }
+        .app-container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 2rem; box-shadow: 0 20px 40px -10px rgba(0,20,30,0.15); padding: 2rem 1.8rem; }
+        h1 { font-size: 2rem; font-weight: 600; color: #0b2b3b; display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; }
+        h1 i { color: #2f7e9e; background: #e1f0f7; padding: 0.6rem; border-radius: 1rem; font-size: 1.4rem; }
+        .subtitle { color: #476b7c; margin-bottom: 2rem; border-left: 4px solid #8fc1d4; padding-left: 1rem; }
+        .stats-row { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-bottom: 2.5rem; }
+        .stat-card { background: #f9fcff; border-radius: 1.5rem; padding: 0.9rem 1.8rem; border: 1px solid #dae9f0; display: flex; align-items: center; gap: 1rem; }
+        .stat-card i { font-size: 1.6rem; width: 2rem; text-align: center; }
+        .stat-card .info { display: flex; flex-direction: column; }
+        .stat-card .label { font-size: 0.8rem; text-transform: uppercase; color: #5a7b8c; }
+        .stat-card .value { font-size: 1.7rem; font-weight: 700; color: #0b2b3b; }
+        .stat-card.open .value { color: #0f6b8a; }
+        .stat-card.won .value { color: #1e7a5e; }
+        .stat-card.lost .value { color: #b13e3e; }
+        .stat-card.hot .value { color: #d35400; }
+        .stat-card.warm .value { color: #e6a017; }
+        .stat-card.lead .value { color: #3b7a9e; }
+        .form-panel { background: #f0f7fc; border-radius: 1.8rem; padding: 1.8rem 2rem; margin-bottom: 2.5rem; border: 1px solid #cde3ee; }
+        .form-panel h2 { font-size: 1.2rem; font-weight: 600; color: #14546e; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.6rem; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; align-items: end; }
+        .input-group { display: flex; flex-direction: column; gap: 0.25rem; }
+        .input-group label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #3d6a80; }
+        .input-group input, .input-group select { padding: 0.7rem 0.9rem; border-radius: 0.8rem; border: 1px solid #b9d3e0; background: white; font-size: 0.9rem; outline: none; }
+        .input-group input:focus, .input-group select:focus { border-color: #2f7e9e; box-shadow: 0 0 0 3px rgba(47,126,158,0.15); }
+        .btn-primary { background: #1d6f8f; color: white; border: none; border-radius: 0.8rem; padding: 0.7rem 1.8rem; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; cursor: pointer; height: 44px; }
+        .btn-primary:hover { background: #0e4e68; }
+        .btn-secondary { background: #e3eef4; color: #1d5d79; border: none; border-radius: 0.8rem; padding: 0.7rem 1.2rem; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; }
+        .btn-secondary:hover { background: #cfe1ec; }
+        .toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; gap: 1rem; }
+        .filter-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .filter-btn { background: white; border: 1px solid #c7dae5; border-radius: 2rem; padding: 0.5rem 1rem; font-size: 0.8rem; font-weight: 500; color: #2d5770; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; }
+        .filter-btn.active { background: #1d6f8f; border-color: #1d6f8f; color: white; }
+        .table-wrapper { overflow-x: auto; border-radius: 1.2rem; border: 1px solid #d2e4ed; background: white; }
+        table { width: 100%; border-collapse: collapse; min-width: 1100px; font-size: 0.9rem; }
+        th { background: #e9f2f8; color: #17546d; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; padding: 1rem 0.8rem; text-align: left; white-space: nowrap; border-bottom: 1px solid #c2dae8; }
+        td { padding: 0.9rem 0.8rem; border-bottom: 1px solid #e0edf5; white-space: nowrap; }
+        tr:hover td { background: #f6fbfe; }
+        .badge { display: inline-block; padding: 0.25rem 0.8rem; border-radius: 2rem; font-size: 0.75rem; font-weight: 600; min-width: 70px; text-align: center; }
+        .badge-open { background: #d9eef9; color: #0a5b7a; }
+        .badge-won { background: #d4f0e3; color: #156b4c; }
+        .badge-lost { background: #fadede; color: #a13c3c; }
+        .badge-hot { background: #ffe0cc; color: #b84a0e; }
+        .badge-warm { background: #fff1c7; color: #9e6d0b; }
+        .badge-lead { background: #d9e8f5; color: #2e6180; }
+        .actions { display: flex; gap: 0.4rem; }
+        .icon-btn { background: transparent; border: none; width: 30px; height: 30px; border-radius: 0.6rem; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #5a7b8c; }
+        .icon-btn:hover { background: #e2eff7; color: #1d6f8f; }
+        .icon-btn.delete:hover { background: #fde7e7; color: #b33c3c; }
+        .empty-message { text-align: center; padding: 3rem 1rem; color: #7c9bac; font-style: italic; }
+        .save-notice { background: #e6f7ec; color: #156b4c; padding: 0.6rem 1rem; border-radius: 0.8rem; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem; border: 1px solid #b8e6cc; }
+        .toast { position: fixed; bottom: 30px; right: 30px; background: #1e7a5e; color: white; padding: 0.9rem 1.4rem; border-radius: 0.8rem; box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 0.6rem; font-weight: 500; opacity: 0; transform: translateY(20px); transition: 0.3s; pointer-events: none; z-index: 999; }
+        .toast.show { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <h1><i class="fas fa-clipboard-list"></i> Inquiry Track · Lead Manager</h1>
+    <div class="subtitle">Your data is auto-saved to this browser 💾</div>
+
+    <div class="stats-row" id="statsRow"></div>
+
+    <div class="form-panel">
+        <h2><i class="fas fa-plus-circle"></i> New Inquiry</h2>
+        <div class="form-grid">
+            <div class="input-group">
+                <label>Name *</label>
+                <input type="text" id="nameInput" placeholder="Full name">
+            </div>
+            <div class="input-group">
+                <label>City *</label>
+                <input type="text" id="cityInput" placeholder="City">
+            </div>
+            <div class="input-group">
+                <label>Phone *</label>
+                <input type="tel" id="phoneInput" placeholder="Phone number">
+            </div>
+            <div class="input-group">
+                <label>Received date *</label>
+                <input type="date" id="receivedInput">
+            </div>
+            <div class="input-group">
+                <label>Recent follow-up</label>
+                <input type="date" id="followupInput">
+            </div>
+            <div class="input-group">
+                <label>Next follow date</label>
+                <input type="date" id="nextFollowInput">
+            </div>
+            <div class="input-group">
+                <label>Status</label>
+                <select id="statusSelect">
+                    <option value="Open">Open</option>
+                    <option value="Won">Won</option>
+                    <option value="Lost">Lost</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Lead type</label>
+                <select id="leadTypeSelect">
+                    <option value="General Lead">General Lead</option>
+                    <option value="Warm Lead">Warm Lead</option>
+                    <option value="Hot Lead">Hot Lead</option>
+                </select>
+            </div>
+            <button class="btn-primary" id="addBtn"><i class="fas fa-save"></i> Save Inquiry</button>
+        </div>
+    </div>
+
+    <div class="toolbar">
+        <div class="filter-group" id="filterGroup">
+            <button class="filter-btn active" data-filter="all"><i class="fas fa-list"></i> All</button>
+            <button class="filter-btn" data-filter="Open"><i class="fas fa-folder-open"></i> Open</button>
+            <button class="filter-btn" data-filter="Won"><i class="fas fa-trophy"></i> Won</button>
+            <button class="filter-btn" data-filter="Lost"><i class="fas fa-times-circle"></i> Lost</button>
+            <button class="filter-btn" data-filter="Hot Lead"><i class="fas fa-fire"></i> Hot</button>
+            <button class="filter-btn" data-filter="Warm Lead"><i class="fas fa-sun"></i> Warm</button>
+            <button class="filter-btn" data-filter="General Lead"><i class="fas fa-leaf"></i> General</button>
+        </div>
+        <div style="display:flex; gap:0.5rem;">
+            <button class="btn-secondary" id="exportBtn"><i class="fas fa-download"></i> Export CSV</button>
+            <button class="btn-secondary" id="clearAllBtn"><i class="fas fa-trash"></i> Clear All</button>
+        </div>
+    </div>
+
+    <div class="table-wrapper">
+        <table id="inquiryTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>City</th>
+                    <th>Phone</th>
+                    <th>Received</th>
+                    <th>Recent follow-up</th>
+                    <th>Next follow</th>
+                    <th>Status</th>
+                    <th>Lead type</th>
+                    <th style="text-align: center;">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<div class="toast" id="toast"><i class="fas fa-check-circle"></i> <span id="toastMsg">Saved!</span></div>
+
+<script>
+(function() {
+    // ---------------- localStorage key ----------------
+    const STORAGE_KEY = 'inquiryTracker_data_v1';
+    let inquiries = [];
+    let nextId = 1;
+    let activeFilter = 'all';
+
+    // ---------------- Load from localStorage ----------------
+    function loadFromStorage() {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+            try {
+                const data = JSON.parse(raw);
+                inquiries = data.inquiries || [];
+                nextId = data.nextId || (Math.max(0, ...inquiries.map(i => i.id)) + 1);
+            } catch (e) {
+                console.error('Failed to load data', e);
+                inquiries = [];
+            }
+        } else {
+            // first time -> seed with demo data
+            seedDemoData();
+            saveToStorage();
+        }
+    }
+
+    // ---------------- Save to localStorage ----------------
+    function saveToStorage() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            inquiries: inquiries,
+            nextId: nextId
+        }));
+    }
+
+    // ---------------- Toast notification ----------------
+    function showToast(msg, isError = false) {
+        const toast = document.getElementById('toast');
+        const toastMsg = document.getElementById('toastMsg');
+        toastMsg.textContent = msg;
+        toast.style.background = isError ? '#b13e3e' : '#1e7a5e';
+        toast.classList.add('show');
+        clearTimeout(window.__toastTimer);
+        window.__toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
+    // ---------------- Date helpers ----------------
+    function formatDate(dateStr) {
+        if (!dateStr) return '—';
+        const d = new Date(dateStr + 'T00:00:00');
+        if (isNaN(d)) return '—';
+        return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+    function todayStr() {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+    function offsetDate(days) {
+        const d = new Date();
+        d.setDate(d.getDate() + days);
+        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+
+    // ---------------- Demo seed ----------------
+    function seedDemoData() {
+        inquiries = [
+            { id: 1, name: 'Rajesh Kumar', city: 'Mumbai', phone: '9876543210', receivedDate: offsetDate(-5), recentFollowup: offsetDate(-2), nextFollowDate: offsetDate(3), status: 'Open', leadType: 'Hot Lead' },
+            { id: 2, name: 'Priya Sharma', city: 'Delhi', phone: '9812345678', receivedDate: offsetDate(-10), recentFollowup: offsetDate(-5), nextFollowDate: offsetDate(1), status: 'Open', leadType: 'Warm Lead' },
+            { id: 3, name: 'Amit Patel', city: 'Ahmedabad', phone: '9898989898', receivedDate: offsetDate(-15), recentFollowup: offsetDate(-7), nextFollowDate: offsetDate(-2), status: 'Won', leadType: 'General Lead' },
+        ];
+        nextId = 4;
+    }
+
+    // ---------------- Render stats ----------------
+    function renderStats() {
+        const total = inquiries.length;
+        const open = inquiries.filter(i => i.status === 'Open').length;
+        const won = inquiries.filter(i => i.status === 'Won').length;
+        const lost = inquiries.filter(i => i.status === 'Lost').length;
+        const hot = inquiries.filter(i => i.leadType === 'Hot Lead').length;
+        const warm = inquiries.filter(i => i.leadType === 'Warm Lead').length;
+        const lead = inquiries.filter(i => i.leadType === 'General Lead').length;
+
+        document.getElementById('statsRow').innerHTML = `
+            <div class="stat-card"><i class="fas fa-database" style="color:#2f7e9e;"></i><div class="info"><span class="label">Total</span><span class="value">${total}</span></div></div>
+            <div class="stat-card open"><i class="fas fa-folder-open" style="color:#0f6b8a;"></i><div class="info"><span class="label">Open</span><span class="value">${open}</span></div></div>
+            <div class="stat-card won"><i class="fas fa-trophy" style="color:#1e7a5e;"></i><div class="info"><span class="label">Won</span><span class="value">${won}</span></div></div>
+            <div class="stat-card lost"><i class="fas fa-times-circle" style="color:#b13e3e;"></i><div class="info"><span class="label">Lost</span><span class="value">${lost}</span></div></div>
+            <div class="stat-card hot"><i class="fas fa-fire" style="color:#d35400;"></i><div class="info"><span class="label">Hot</span><span class="value">${hot}</span></div></div>
+            <div class="stat-card warm"><i class="fas fa-sun" style="color:#e6a017;"></i><div class="info"><span class="label">Warm</span><span class="value">${warm}</span></div></div>
+            <div class="stat-card lead"><i class="fas fa-leaf" style="color:#3b7a9e;"></i><div class="info"><span class="label">General</span><span class="value">${lead}</span></div></div>
+        `;
+    }
+
+    // ---------------- Filter ----------------
+    function getFiltered() {
+        if (activeFilter === 'all') return inquiries;
+        if (['Open','Won','Lost'].includes(activeFilter)) return inquiries.filter(i => i.status === activeFilter);
+        if (['Hot Lead','Warm Lead','General Lead'].includes(activeFilter)) return inquiries.filter(i => i.leadType === activeFilter);
+        return inquiries;
+    }
+
+    // ---------------- Render table ----------------
+    function renderTable() {
+        const tbody = document.getElementById('tableBody');
+        const list = getFiltered();
+        if (list.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="9" class="empty-message"><i class="fas fa-inbox"></i> No inquiries match this filter.</td></tr>`;
+            return;
+        }
+        tbody.innerHTML = list.map(inq => {
+            const sBadge = { Open:'badge-open', Won:'badge-won', Lost:'badge-lost' }[inq.status] || 'badge-open';
+            const lBadge = { 'Hot Lead':'badge-hot', 'Warm Lead':'badge-warm', 'General Lead':'badge-lead' }[inq.leadType] || 'badge-lead';
+            return `<tr>
+                <td><strong>${esc(inq.name)}</strong></td>
+                <td>${esc(inq.city)}</td>
+                <td>${esc(inq.phone)}</td>
+                <td>${formatDate(inq.receivedDate)}</td>
+                <td>${formatDate(inq.recentFollowup)}</td>
+                <td>${formatDate(inq.nextFollowDate)}</td>
+                <td><span class="badge ${sBadge}">${inq.status}</span></td>
+                <td><span class="badge ${lBadge}">${inq.leadType}</span></td>
+                <td>
+                    <div class="actions">
+                        <button class="icon-btn" onclick="window.cycleStatus(${inq.id})" title="Cycle status"><i class="fas fa-sync-alt"></i></button>
+                        <button class="icon-btn delete" onclick="window.deleteInquiry(${inq.id})" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                    </div>
+                </td>
+            </tr>`;
+        }).join('');
+    }
+
+    function esc(t) { return t ? String(t).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])) : ''; }
+
+    // ---------------- Render all ----------------
+    function renderAll() {
+        renderStats();
+        renderTable();
+    }
+
+    // ---------------- Add Inquiry (with Save) ----------------
+    function addInquiry() {
+        const name = document.getElementById('nameInput').value.trim();
+        const city = document.getElementById('cityInput').value.trim();
+        const phone = document.getElementById('phoneInput').value.trim();
+        const receivedDate = document.getElementById('receivedInput').value;
+        const recentFollowup = document.getElementById('followupInput').value;
+        const nextFollowDate = document.getElementById('nextFollowInput').value;
+        const status = document.getElementById('statusSelect').value;
+        const leadType = document.getElementById('leadTypeSelect').value;
+
+        if (!name || !city || !phone) { showToast('Please fill Name, City and Phone', true); return; }
+        if (!receivedDate) { showToast('Please select Received date', true); return; }
+
+        const newInquiry = {
+            id: nextId++,
+            name, city, phone,
+            receivedDate,
+            recentFollowup: recentFollowup || '',
+            nextFollowDate: nextFollowDate || '',
+            status, leadType
+        };
+        inquiries.push(newInquiry);
+        saveToStorage();       // 🔑 SAVES TO BROWSER
+        renderAll();
+        showToast(`Saved "${name}" ✓`);
+
+        // clear form
+        document.getElementById('nameInput').value = '';
+        document.getElementById('cityInput').value = '';
+        document.getElementById('phoneInput').value = '';
+        document.getElementById('receivedInput').value = todayStr();
+        document.getElementById('followupInput').value = '';
+        document.getElementById('nextFollowInput').value = offsetDate(5);
+        document.getElementById('statusSelect').value = 'Open';
+        document.getElementById('leadTypeSelect').value = 'General Lead';
+        document.getElementById('nameInput').focus();
+    }
+
+    // ---------------- Delete ----------------
+    window.deleteInquiry = function(id) {
+        if (!confirm('Delete this inquiry permanently?')) return;
+        inquiries = inquiries.filter(i => i.id !== id);
+        saveToStorage();
+        renderAll();
+        showToast('Inquiry deleted');
+    };
+
+    // ---------------- Cycle Status ----------------
+    window.cycleStatus = function(id) {
+        const inq = inquiries.find(i => i.id === id);
+        if (!inq) return;
+        const order = ['Open','Won','Lost'];
+        inq.status = order[(order.indexOf(inq.status) + 1) % order.length];
+        saveToStorage();
+        renderAll();
+        showToast(`Status → ${inq.status}`);
+    };
+
+    // ---------------- Export CSV ----------------
+    function exportCSV() {
+        if (inquiries.length === 0) { showToast('No data to export', true); return; }
+        const headers = ['Name','City','Phone','Received Date','Recent Follow-up','Next Follow Date','Status','Lead Type'];
+        const rows = inquiries.map(i => [
+            i.name, i.city, i.phone, i.receivedDate, i.recentFollowup, i.nextFollowDate, i.status, i.leadType
+        ]);
+        const csv = [headers, ...rows].map(r => r.map(c => `"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `inquiries_${todayStr()}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('CSV exported ✓');
+    }
+
+    // ---------------- Clear All ----------------
+    function clearAll() {
+        if (!confirm('Delete ALL inquiries? This cannot be undone.')) return;
+        inquiries = [];
+        nextId = 1;
+        saveToStorage();
+        renderAll();
+        showToast('All inquiries cleared');
+    }
+
+    // ---------------- Filter buttons ----------------
+    function setFilter(f) {
+        activeFilter = f;
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === f));
+        renderTable();
+    }
+
+    // ---------------- Init ----------------
+    function init() {
+        loadFromStorage();
+
+        // Default form dates
+        document.getElementById('receivedInput').value = todayStr();
+        document.getElementById('nextFollowInput').value = offsetDate(5);
+
+        document.getElementById('addBtn').addEventListener('click', addInquiry);
+        document.getElementById('exportBtn').addEventListener('click', exportCSV);
+        document.getElementById('clearAllBtn').addEventListener('click', clearAll);
+
+        // Enter key on name field submits
+        document.getElementById('phoneInput').addEventListener('keydown', e => {
+            if (e.key === 'Enter') addInquiry();
+        });
+
+        document.querySelectorAll('.filter-btn').forEach(b => {
+            b.addEventListener('click', () => setFilter(b.dataset.filter));
+        });
+
+        renderAll();
+    }
+
+    init();
+})();
+</script>
+</body>
+</html>
